@@ -1,0 +1,8 @@
+<resources>
+
+    <style name="Base.Theme.Puzzle15MVP" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary_pink</item>
+    </style>
+
+    <style name="Theme.Puzzle15MVP" parent="Base.Theme.Puzzle15MVP" />
+</resources>

@@ -165,7 +165,6 @@
             android:fontFamily="@font/courgette"
             android:gravity="center"
             android:textColor="@color/white"
-            android:text="25"
             android:textSize="24sp"
             android:textStyle="bold" />
 

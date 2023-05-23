@@ -1,11 +1,14 @@
 package com.javohirbekcoder.puzzle15mvp.screens.game
 
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.javohirbekcoder.puzzle15mvp.R
 import com.javohirbekcoder.puzzle15mvp.databinding.FragmentGameBinding
 import kotlin.math.abs
@@ -24,6 +27,7 @@ class GameFragment : Fragment(R.layout.fragment_game), GameContract.View {
     private var isGameActive = true
 
     private var moves = 0
+    private var timeWhenStopped: Long = 0
 
     private var emptyX = 0
     private var emptyY = 0
@@ -42,6 +46,8 @@ class GameFragment : Fragment(R.layout.fragment_game), GameContract.View {
                     binding.pauseLayout.visibility = View.VISIBLE
 
                     //Game Paused logic
+
+                    timeWhenStopped = binding.chronometer.base - SystemClock.elapsedRealtime();
                     binding.chronometer.stop()
 
                 } else {
@@ -49,6 +55,8 @@ class GameFragment : Fragment(R.layout.fragment_game), GameContract.View {
                     binding.pauseLayout.visibility = View.INVISIBLE
 
                     //Game continue logic
+
+                    binding.chronometer.base = SystemClock.elapsedRealtime() + timeWhenStopped
                     binding.chronometer.start()
 
                 }
@@ -59,6 +67,13 @@ class GameFragment : Fragment(R.layout.fragment_game), GameContract.View {
         }
         binding.newGameBtn.setOnClickListener {
             presenter.shuffle()
+            isGameActive = true
+
+            moves = 0
+            updateMovementUI(moves)
+
+            binding.chronometer.base = SystemClock.elapsedRealtime()
+            binding.chronometer.start()
         }
         return binding.root
     }
@@ -110,12 +125,23 @@ class GameFragment : Fragment(R.layout.fragment_game), GameContract.View {
             cell[y][x] = binding.gridLayout.getChildAt(i) as TextView
             cell[y][x]?.apply {
                 setOnClickListener {
-                    if (canMove(y, x)) {
+                    if (canMove(y, x) && isGameActive) {
                         swap(x, y)
+                        if (isGameOver()) {
+                            gameOver()
+                            isGameActive = false
+                        }
                     }
                 }
             }
         }
+    }
+
+    private fun gameOver(){
+        binding.chronometer.stop()
+
+        val directions = GameFragmentDirections.actionGameFragmentToGameOverFragment(moves)
+        findNavController().navigate(directions)
     }
 
     override fun loadGame(list: List<Int>) {
@@ -134,6 +160,15 @@ class GameFragment : Fragment(R.layout.fragment_game), GameContract.View {
     }
 
     override fun isGameOver(): Boolean {
+        var counter = 1
+        for (i in 0 until binding.gridLayout.childCount - 1) {
+            var view = binding.gridLayout.getChildAt(i) as TextView
+            if (view.text.isEmpty()) break
+            if (view.text.toString().toInt() == counter) {
+                counter++
+            }
+        }
+        if (counter == 16) return true
         return false
     }
 }

@@ -6,7 +6,7 @@ Created by Javohirbek on 18.05.2023 at 11:14
 */
 class GameRepository : GameContract.Repository {
 
-    private val isTestingMode = false
+    private val isTestingMode = true
     private val list: MutableList<Int> = ArrayList<Int>()
 
     override fun loadNumbers(): List<Int> {
